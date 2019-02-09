@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {Component} from 'react';
+import update from 'react-addons-update';
 import isEmpty from 'lodash/isEmpty';
 
-class Home extends React.Component {
+class Home extends Component {
 	constructor(props) {	
-		super(props);
+		super();
 		this.state = {
 			planets: [],
 			vehicles: [],
@@ -32,7 +33,29 @@ class Home extends React.Component {
 		this.handleChange = this.handleChange.bind(this);
 		this.handleDragStart = this.handleDragStart.bind(this);
 		this.handleDragOver = this.handleDragOver.bind(this);
-		this.handleDrop = this.handleDrop.bind(this)
+		this.handleDrop = this.handleDrop.bind(this);
+		this.resetAll = this.resetAll.bind(this)
+	}
+	resetAll() {
+		this.setState({
+			Destination1: "",
+			Destination2: "",
+			Destination3: "",
+			Destination4: "",
+			planet_Destination1: "",
+			planet_Destination2: "",
+			planet_Destination3: "",
+			planet_Destination4: "",
+			vehicle1: {},
+			vehicle2: {},
+			vehicle3: {},
+			vehicle4: {},
+			Time1: 0,
+			Time2: 0,
+			Time3: 0,
+			Time4: 0,
+			vehicles: this.props.vehicles
+		});
 	}
 	handleDragStart (e, vehicle, i) {
 		if(vehicle.total_no > 0 ) {
@@ -45,7 +68,8 @@ class Home extends React.Component {
 	}
 	handleDrop(e) {
 		const data = JSON.parse(e.dataTransfer.getData("vehicle"))
-		const i = e.dataTransfer.getData("index")
+		const i = e.dataTransfer.getData("index");
+		const Index = parseInt(i);
 		const name = e.target.getAttribute('name');
 		console.log(data, name)
 		console.log(i, "i")
@@ -59,19 +83,24 @@ class Home extends React.Component {
 							data.total_no = data.total_no - 1
 						}
 						const TimeTaken = parseInt(this.state.Destination1) / data.speed;
-						this.setState({ vehicle1: data, Time1: TimeTaken })
-						this.state.vehicles[i].total_no = this.state.vehicles[i].total_no - 1	
-						this.forceUpdate();
+						this.setState({
+							vehicle1: data,
+							Time1: TimeTaken,
+							vehicles: update(this.state.vehicles, { [Index]: { total_no: { $set: this.state.vehicles[i].total_no - 1 }}})
+						});
 					} else {
 						if(data.total_no > 1) {
 							data.total_no = data.total_no - 1
 						}
 						const TimeTaken = parseInt(this.state.Destination1) / data.speed;
-						const objIndex = this.state.vehicles.findIndex(obj => obj.name === this.state.vehicle1.name);
-						this.state.vehicles[objIndex].total_no = this.state.vehicles[objIndex].total_no + 1;
-						this.setState({ vehicle1: data, Time1: TimeTaken });
-						this.state.vehicles[i].total_no = this.state.vehicles[i].total_no - 1	
-						this.forceUpdate();
+						const objIndex = parseInt(this.state.vehicles.findIndex(obj => obj.name === this.state.vehicle1.name))
+						this.setState({
+							vehicles: update(this.state.vehicles, { [objIndex]: { total_no: { $set: this.state.vehicles[objIndex].total_no + 1 }}}),
+							vehicle1: data,
+							Time1: TimeTaken,
+						}, () => {
+							this.setState({ vehicles: update(this.state.vehicles, { [Index]: { total_no: { $set: this.state.vehicles[i].total_no - 1 }}}) })
+						});
 					}
 				}
 			} else {
@@ -88,19 +117,25 @@ class Home extends React.Component {
 							data.total_no = data.total_no - 1
 						}
 						const TimeTaken = parseInt(this.state.Destination2) / data.speed;
-						this.setState({ vehicle2: data, Time2: TimeTaken });
-						this.state.vehicles[i].total_no = this.state.vehicles[i].total_no - 1	
-						this.forceUpdate();
+						this.setState({
+							vehicle2: data,
+							Time2: TimeTaken,
+							vehicles: update(this.state.vehicles, { [Index]: { total_no: { $set: this.state.vehicles[i].total_no - 1 }}})
+						})
 					} else {
 						if(data.total_no > 1) {
 							data.total_no = data.total_no - 1
 						}
 						const TimeTaken = parseInt(this.state.Destination2) / data.speed;
+						debugger;
 						const objIndex = this.state.vehicles.findIndex(obj => obj.name === this.state.vehicle2.name);
-						this.state.vehicles[objIndex].total_no = this.state.vehicles[objIndex].total_no + 1;
-						this.setState({ vehicle2: data, Time2: TimeTaken });
-						this.state.vehicles[i].total_no = this.state.vehicles[i].total_no - 1	
-						this.forceUpdate();
+						this.setState({
+							vehicles: update(this.state.vehicles, { [objIndex]: { total_no: { $set: this.state.vehicles[objIndex].total_no + 1 }}}),
+							vehicle2: data,
+							Time2: TimeTaken,
+						}, () => {
+							this.setState({ vehicles: update(this.state.vehicles, { [Index]: { total_no: { $set: this.state.vehicles[i].total_no - 1 }}}) })
+						});
 					}
 				}
 			} else {
@@ -117,19 +152,24 @@ class Home extends React.Component {
 							data.total_no = data.total_no - 1
 						}
 						const TimeTaken = parseInt(this.state.Destination3) / data.speed;
-						this.setState({ vehicle3: data, Time3: TimeTaken })
-						this.state.vehicles[i].total_no = this.state.vehicles[i].total_no - 1	
-						this.forceUpdate();
+						this.setState({
+							vehicle3: data,
+							Time3: TimeTaken,
+							vehicles: update(this.state.vehicles, { [Index]: { total_no: { $set: this.state.vehicles[i].total_no - 1 }}})
+						})
 					} else {
 						if(data.total_no > 1) {
 							data.total_no = data.total_no - 1
 						}
 						const TimeTaken = parseInt(this.state.Destination2) / data.speed;
 						const objIndex = this.state.vehicles.findIndex(obj => obj.name === this.state.vehicle1.name);
-						this.state.vehicles[objIndex].total_no = this.state.vehicles[objIndex].total_no + 1;
-						this.setState({ vehicle1: data, Time3: TimeTaken });
-						this.state.vehicles[i].total_no = this.state.vehicles[i].total_no - 1	
-						this.forceUpdate();
+						this.setState({
+							vehicles: update(this.state.vehicles, { [objIndex]: { total_no: { $set: this.state.vehicles[objIndex].total_no + 1 }}}),
+							vehicle3: data,
+							Time3: TimeTaken,
+						}, () => {
+							this.setState({ vehicles: update(this.state.vehicles, { [Index]: { total_no: { $set: this.state.vehicles[i].total_no - 1 }}}) })
+						});
 					}
 				}
 			} else {
@@ -146,19 +186,24 @@ class Home extends React.Component {
 							data.total_no = data.total_no - 1
 						}
 						const TimeTaken = parseInt(this.state.Destination4) / data.speed;
-						this.setState({ vehicle4: data, Time4: TimeTaken })
-						this.state.vehicles[i].total_no = this.state.vehicles[i].total_no - 1	
-						this.forceUpdate();
+						this.setState({
+							vehicle4: data,
+							Time4: TimeTaken,
+							vehicles: update(this.state.vehicles, { [Index]: { total_no: { $set: this.state.vehicles[i].total_no - 1 }}})
+						})
 					} else {
 						if(data.total_no > 1) {
 							data.total_no = data.total_no - 1
 						} 
 						const TimeTaken = parseInt(this.state.Destination4) / data.speed;    
 						const objIndex = this.state.vehicles.findIndex(obj => obj.name === this.state.vehicle4.name);
-						this.state.vehicles[objIndex].total_no = this.state.vehicles[objIndex].total_no + 1;
-						this.setState({ vehicle1: data, Time4: TimeTaken });
-						this.state.vehicles[i].total_no = this.state.vehicles[i].total_no - 1	
-						this.forceUpdate();
+						this.setState({
+							vehicles: update(this.state.vehicles, { [objIndex]: { total_no: { $set: this.state.vehicles[objIndex].total_no + 1 }}}),
+							vehicle4: data,
+							Time4: TimeTaken,
+						}, () => {
+							this.setState({ vehicles: update(this.state.vehicles, { [Index]: { total_no: { $set: this.state.vehicles[i].total_no - 1 }}}) })
+						});
 					}
 				}
 			} else {
@@ -291,7 +336,7 @@ class Home extends React.Component {
 											onDrop={(e) => this.handleDrop(e)}
 											>
 											{ !isEmpty(this.state.vehicle2) &&
-												<div className="card-body text-center p-2">
+												<div className="card-body text-center p-2" style={{ pointerEvents: "none"}}>
 													<h5 className="text-secondary"><small>Planet name:</small> {planet_Destination2}</h5>
 													<h5 className="text-secondary"><small>Distance:</small> {Destination1}</h5>
 													<h5 className="text-secondary">{vehicle2.name}</h5>
@@ -328,9 +373,9 @@ class Home extends React.Component {
 											onDrop={(e) => this.handleDrop(e)}
 											>
 											{ !isEmpty(this.state.vehicle3) &&
-												<div className="card-body text-center p-2">
+												<div className="card-body text-center p-2" style={{ pointerEvents: "none"}}>
 													<h5 className="text-secondary"><small>Planet name:</small> {planet_Destination3}</h5>
-													<h5 className="text-secondary"><small>Distance:</small> {Destination1}</h5>
+													<h5 className="text-secondary"><small>Distance:</small> {Destination3}</h5>
 													<h5 className="text-secondary">{vehicle3.name}</h5>
 													<h3 className="">{vehicle3.total_no}</h3>
 													<small>
@@ -365,9 +410,9 @@ class Home extends React.Component {
 											onDrop={(e) => this.handleDrop(e)}
 											>
 											{ !isEmpty(this.state.vehicle4) &&
-												<div className="card-body text-center p-2">
+												<div className="card-body text-center p-2" style={{ pointerEvents: "none"}}>
 													<h5 className="text-secondary"><small>Planet name:</small> {planet_Destination4}</h5>
-													<h5 className="text-secondary"><small>Distance:</small> {Destination1}</h5>
+													<h5 className="text-secondary"><small>Distance:</small> {Destination4}</h5>
 													<h5 className="text-secondary">{vehicle4.name}</h5>
 													<h3 className="">{vehicle4.total_no}</h3>
 													<small>
@@ -390,7 +435,7 @@ class Home extends React.Component {
 										</div>
 									</div>
 									<div className="col-3 mt-4 text-right">
-										<div className="btn btn-outline-secondary pl-5 pr-5">Reset</div>
+										<button className="btn btn-outline-secondary pl-5 pr-5" onClick={this.resetAll}>Reset</button>
 									</div>
 									<div className="col-3 mt-4 text-left">
 										<div className="btn btn-outline-secondary pl-5 pr-5">Submit</div>
