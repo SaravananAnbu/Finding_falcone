@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import HomeComponent from '../components/home';
-import { fetchPlanetList, fetchVehicleList, getToken } from '../actions';
+import { fetchPlanetList, fetchVehicleList, getToken, findFalcone } from '../actions';
 
 
 const mapStateToProps = (state) => {
@@ -15,6 +15,7 @@ const mapDispatchToProps = (dispatch) => {
 		fetchPlanetList: () => dispatch(fetchPlanetList()),
 		fetchVehicleList: () => dispatch(fetchVehicleList()),
 		getToken: () => dispatch(getToken()),
+		findFalcone: (data) => dispatch(findFalcone(data))
 	}
 }
 

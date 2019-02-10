@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import update from 'react-addons-update';
 import isEmpty from 'lodash/isEmpty';
+import history from '../history';
 
 class Home extends Component {
 	constructor(props) {	
@@ -22,19 +23,51 @@ class Home extends Component {
 			vehicle2: {},
 			vehicle3: {},
 			vehicle4: {},
-			token: "",
 			Time1: 0,
 			Time2: 0,
 			Time3: 0,
 			Time4: 0,
 			TimeTaken: 0,
-			errors: ""
+			errors: "",
+			result: {}
 		}
 		this.handleChange = this.handleChange.bind(this);
 		this.handleDragStart = this.handleDragStart.bind(this);
 		this.handleDragOver = this.handleDragOver.bind(this);
 		this.handleDrop = this.handleDrop.bind(this);
-		this.resetAll = this.resetAll.bind(this)
+		this.resetAll = this.resetAll.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this)
+	}
+	handleSubmit(e) {
+		e.preventDefault();
+		const { planet_Destination1, planet_Destination2, planet_Destination3, planet_Destination4, vehicle1, vehicle2, vehicle3, vehicle4 } = this.state
+		const data = {
+			token: this.props.token,
+			planet_names: [planet_Destination1, planet_Destination2, planet_Destination3, planet_Destination4],
+			vehicle_names: [
+				vehicle1.name,
+				vehicle2.name,
+				vehicle3.name,
+				vehicle4.name
+			]
+		} 
+		console.log(data.planet_names.length, data.vehicle_names.length)
+		if(planet_Destination1 === "" || planet_Destination2 === "" || planet_Destination3 === "" || planet_Destination4 === "" || isEmpty(vehicle1) || isEmpty(vehicle2) || isEmpty(vehicle3) || isEmpty(vehicle4)){
+			this.setState({ errors : "Please Fill all the Fields"})
+		} else {
+			this.props.findFalcone(data).then(
+				(res) => {
+					if(res.status === 200) {
+						this.setState({ result: res.data })
+						history.push({
+							pathname: '/result',
+							state: { result: res.data, Time: this.state.Time1+this.state.Time2+this.state.Time3+this.state.Time4 }
+						})
+					}
+				}
+			)
+		}
+		
 	}
 	resetAll() {
 		this.setState({
@@ -216,11 +249,60 @@ class Home extends Component {
 		const name = e.nativeEvent.target[index].text;
 		e.preventDefault();
 		this.setState({ [e.target.name] : e.target.value, [`planet_${e.target.name}`]:  name })
+		const planetName = e.target.name;
+		console.log(e.target.name)
+		if(planetName === "Destination1") {
+			if(!isEmpty(this.state.vehicle1)) {
+				const objIndex = this.state.vehicles.findIndex(obj => obj.name === this.state.vehicle1.name);
+				this.setState({
+					vehicles: update(this.state.vehicles, { [objIndex]: { total_no: { $set: this.state.vehicles[objIndex].total_no + 1 }}}),
+					vehicle1: {},
+					Time1: 0,
+				});
+			}
+		}
+		if(planetName === "Destination2") {
+			if(!isEmpty(this.state.vehicle2)) {
+				const objIndex = this.state.vehicles.findIndex(obj => obj.name === this.state.vehicle2.name);
+				this.setState({
+					vehicles: update(this.state.vehicles, { [objIndex]: { total_no: { $set: this.state.vehicles[objIndex].total_no + 1 }}}),
+					vehicle2: {},
+					Time2: 0,
+				});
+			}
+		}
+		if(planetName === "Destination3") {
+			if(!isEmpty(this.state.vehicle3)) {
+				const objIndex = this.state.vehicles.findIndex(obj => obj.name === this.state.vehicle3.name);
+				this.setState({
+					vehicles: update(this.state.vehicles, { [objIndex]: { total_no: { $set: this.state.vehicles[objIndex].total_no + 1 }}}),
+					vehicle3: {},
+					Time3: 0,
+				});
+			}
+		}
+		if(planetName === "Destination4") {
+			if(!isEmpty(this.state.vehicle4)) {
+				const objIndex = this.state.vehicles.findIndex(obj => obj.name === this.state.vehicle4.name);
+				this.setState({
+					vehicles: update(this.state.vehicles, { [objIndex]: { total_no: { $set: this.state.vehicles[objIndex].total_no + 1 }}}),
+					vehicle4: {},
+					Time4: 0,
+				});
+			}
+		}
 	}
 	componentWillMount() {
 		this.props.fetchPlanetList();
 		this.props.fetchVehicleList();
 		this.props.getToken();
+	}
+	componentDidMount() {
+		if(!isEmpty(this.props.location.state)) {
+			if(this.props.location.state.resetAll) {
+				this.resetAll()
+			}
+		}
 	}
 	componentDidUpdate(prevProps, prevState) {
 		if(prevProps.planets !== this.props.planets) {
@@ -228,9 +310,6 @@ class Home extends Component {
 		}
 		if(prevProps.vehicles !== this.props.vehicles) {
 			this.setState({ vehicles: this.props.vehicles })
-		}
-		if(prevProps.token !== this.props.token) {
-			this.setState({ token: this.props.token })
 		}
 		if(prevState.errors !== this.state.errors) {
 			setTimeout(() => this.setState({ errors: "" }), 1500)
@@ -244,9 +323,12 @@ class Home extends Component {
 			 } = this.state
 		return (
 			<div className="container-fluid text-center">
-				<div className="row p-3">
+				<div className="row pl-3 pr-3 pb-2 pt-1">
+					<div className="col-12 m-0 p-0">
+						<span className="float-right"><a href="https://www.geektrust.in">Geektrust Home</a></span>
+					</div>
 					<div className="col-12">
-						<h2>Finding Falcone </h2>	
+						<h3>Finding Falcone </h3>	
 						<h6 className="text-secondary">Select a Planet you want to Search in</h6>	
 					</div>
 					<div className="col-12 mt-4">
@@ -271,7 +353,7 @@ class Home extends Component {
 									</div>
 								)}
 							</div>
-							<div className="col-9">
+							<div className="col-10">
 								<div className="row justify-content-center">
 									<div className="col-3">
 										<div className="form-group">
@@ -338,7 +420,7 @@ class Home extends Component {
 											{ !isEmpty(this.state.vehicle2) &&
 												<div className="card-body text-center p-2" style={{ pointerEvents: "none"}}>
 													<h5 className="text-secondary"><small>Planet name:</small> {planet_Destination2}</h5>
-													<h5 className="text-secondary"><small>Distance:</small> {Destination1}</h5>
+													<h5 className="text-secondary"><small>Distance:</small> {Destination2}</h5>
 													<h5 className="text-secondary">{vehicle2.name}</h5>
 													<h3 className="">{vehicle2.total_no}</h3>
 													<small>
@@ -438,7 +520,7 @@ class Home extends Component {
 										<button className="btn btn-outline-secondary pl-5 pr-5" onClick={this.resetAll}>Reset</button>
 									</div>
 									<div className="col-3 mt-4 text-left">
-										<div className="btn btn-outline-secondary pl-5 pr-5">Submit</div>
+										<div className="btn btn-outline-secondary pl-5 pr-5" onClick={this.handleSubmit}>Submit</div>
 									</div>
 								</div>
 								<div className="col-8 text-center m-auto pt-4">
@@ -455,6 +537,7 @@ class Home extends Component {
 						</div>
 					</div>
 				</div>
+				<div style={{ position:'fixed', bottom: 0, left: 0, right:0 }}><p className="text-center">Coding Problem - www.geektrust.in/finding-falcone</p></div>
 			</div>
 		);
 	}
